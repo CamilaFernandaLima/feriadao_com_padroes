@@ -54,6 +54,7 @@ public class  LanchaFactory
     {
         Console.WriteLine("Qual item você deseja?");
         Console.WriteLine("(1) X-Burguer, (2) X-Salada, (3) Vegano, (4) Porção de Batata com Bacon");
+        
         if (tipo == "1")
             return new XBurguer();
         else if (tipo == "2")
@@ -67,5 +68,35 @@ public class  LanchaFactory
             Console.WriteLine("Erro: seu pedido não existe no cardápio.");
             return null;
         }
+    }
+}
+
+// 3. padrão adapter: adaptador de pagamento
+//sistema antigo, com o método de pagamento antigo
+public class SistemaAntigo
+{
+    public void Transacao(double valor)
+    {
+        Console.WriteLine($"Processando pagamento de R${valor:F2} no sistema antigo.");
+    }
+}
+
+//interface moderna usada pelo novo sistema
+public interface IPagamento
+{
+    void Pagar(double valor);
+}
+//adaptador (pega o valor antigo e adapta a transação para o novo sistema)
+public class  AdaptadorPagamento : IPagamento
+{
+    private SistemaAntigo sistemaAntigo;
+
+    public AdaptadorPagamento(SistemaAntigo sistema)
+    {
+        this.sistemaAntigo = sistema;
+    }
+    public void Pagar(double valor)
+    {
+        sistemaAntigo.Transacao(valor);
     }
 }
