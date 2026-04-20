@@ -137,3 +137,39 @@ public class ProxyCancelamento : ICancelamento
         }
     }
 }
+
+// 5. padrão decorator: para adicionar complementos
+public abstract class ItemPedidoDecorator : IItemPedido
+{
+    protected IItemPedido itemAtual;
+    public ItemPedidoDecorator(IItemPedido item)
+    {
+        this.itemAtual = item;
+    }
+    public virtual string GetDescricao() => itemAtual.GetDescricao();
+    public virtual double GetPreco() => itemAtual.GetPreco();
+}
+public class QueijoExtra : ItemPedidoDecorator
+{
+    public QueijoExtra(IItemPedido item) : base(item) { }
+
+    public override string GetDescricao() => base.itemAtual.GetDescricao() + " + Queijo Extra";
+    public override double GetPreco() => base.itemAtual.GetPreco() + 3.0;
+
+}
+public class Bacon : ItemPedidoDecorator
+{
+    public Bacon(IItemPedido item) : base(item) { }
+
+    public override string GetDescricao() => base.itemAtual.GetDescricao() + " + Bacon";
+    public override double GetPreco() => base.itemAtual.GetPreco() + 4.0;
+
+}
+public class CebolaCrispy : ItemPedidoDecorator
+{
+    public CebolaCrispy(IItemPedido item) : base(item) { }
+
+    public override string GetDescricao() => base.itemAtual.GetDescricao() + " + Cebola Crispy";
+    public override double GetPreco() => base.itemAtual.GetPreco() + 2.0;
+
+}
