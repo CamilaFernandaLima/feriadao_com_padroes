@@ -100,3 +100,40 @@ public class  AdaptadorPagamento : IPagamento
         sistemaAntigo.Transacao(valor);
     }
 }
+
+// 4. padrão proxy: controle de cancelamentos no sistema de pedidos
+public interface ICancelamento
+{
+    void CancelarPedido();
+}
+public class CancelamentoReal : ICancelamento
+{
+    public void CancelarPedido()
+    {
+        Console.WriteLine("Pedido cancelado com sucesso.");
+    }
+}
+public class ProxyCancelamento : ICancelamento
+{
+    private ICancelamento sistemaReal;
+    private string senhaGerente;
+
+    public ProxyCancelamento(ICancelamento sistema, string senha)
+    {
+        this.sistemaReal = sistema;
+        this.senhaGerente = senha;
+    }
+
+    public void CancelarPedido()
+    {
+        if (senhaGerente == "1234")
+        {
+            Console.WriteLine("Acesso concedido: senha correta. Cancelando pedido...");
+            sistemaReal.CancelarPedido();
+        }
+        else
+        {
+            Console.WriteLine("Acesso negado: senha incorreta. Pedido não cancelado.");
+        }
+    }
+}
