@@ -48,13 +48,10 @@ public class  BatataBacon : IItemPedido
 }
 
 // a factory:
-public class  LanchaFactory
+public class  LancheFactory
 {
     public static IItemPedido Criar(string tipo)
     {
-        Console.WriteLine("Qual item você deseja?");
-        Console.WriteLine("(1) X-Burguer, (2) X-Salada, (3) Vegano, (4) Porção de Batata com Bacon");
-        
         if (tipo == "1")
             return new XBurguer();
         else if (tipo == "2")
@@ -213,16 +210,72 @@ public class PainelCozinha : IObservador
 }
 public class Pedido
 {
-    private List<IObservador> abservadores = new List<IObservador>();
+    private List<IObservador> observadores = new List<IObservador>();
     private string statusAtual;
 
-    public void Adicionar(IObservador obs) => abservadores.Add(obs);
+    public void Adicionar(IObservador obs) => observadores.Add(obs);
     public void MudarStatus(string novoStatus)
     {
         this.statusAtual = novoStatus;
-        foreach (var obs in abservadores)
+        foreach (var obs in observadores)
         {
             obs.Atualizar(statusAtual);
         }
     }
 }
+
+//8. padrão facade: interface de pedidos do cliente 
+public class AppFacade
+{
+    public void FazerPedido(string numeroLanche, bool querQueijo, bool querBacon, bool querCebola, ICalculoFrete frete)
+    {
+        Console.WriteLine("NOVO PEDIDO:");
+
+        // singleton verifica se a loja esta aberta
+        var config = ConfiguracaoLoja.GetInstance();
+        if (config.Status != "Aberta")
+        {
+            Console.WriteLine("Desculpe, a loja está fechada no momento.");
+            return;
+        }
+
+        // factory cria o lanche base escolhido
+        IItemPedido meuLanche = LancheFactory.Criar(numeroLanche);
+        if (meuLanche == null) return;
+
+        // decorator adiciona os complementos 
+        if (querQueijo) meuLanche = new QueijoExtra(meuLanche);
+        if (querBacon) meuLanche = new Bacon(meuLanche);
+        if (querCebola) meuLanche = new CebolaCrispy(meuLanche);
+
+        // strategy calcula o frete
+        double valorFrete = frete.Calcular();
+
+        double valorTotal = meuLanche.GetPreco() + valorFrete + config.TaxaBase;
+        Console.WriteLine($"Descrição do pedido: {meuLanche.GetDescricao()}");
+        Console.WriteLine($"Valor do pedido (com frete e taxa base): R$ {valorTotal:F2}");
+
+        // adapter para processar o pagamento
+        SistemaAntigo sistemaVelho = new SistemaAntigo();
+        IPagamento pagamento = new AdaptadorPagamento(sistemaVelho);
+        pagamento.Pagar(valorTotal);
+
+        // observer atualiza o status
+        Pedido acompanhamentoPedido = new Pedido();
+        acompanhamentoPedido.Adicionar(new AppCliente());
+        acompanhamentoPedido.Adicionar(new PainelCozinha());
+
+        Console.WriteLine("\nEnviando pedido para a cozinha...");
+        acompanhamentoPedido.MudarStatus("Preparando");
+        acompanhamentoPedido.MudarStatus("Saiu para Entrega");
+    }
+
+    // bloqueio por proxy para cancelamento de pedidos
+    public void TentarCancelar(string senha)
+    {
+        Console.WriteLine("\nTentativa de Cancelamento:");
+        ICancelamento cancelamento = new ProxyCancelamento(new CancelamentoReal(), senha);
+        cancelamento.CancelarPedido();
+    }
+}
+
