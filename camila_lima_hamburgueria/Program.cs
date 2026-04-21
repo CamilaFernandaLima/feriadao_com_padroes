@@ -191,3 +191,38 @@ public class RetirarBalcao : ICalculoFrete
 {
     public double Calcular() { Console.WriteLine("Frete: Retirada (Grátis)"); return 0.00; }
 }
+
+// 7. padrão observer: para restrear os pedidos
+public interface IObservador
+{
+    void Atualizar(string status);
+}
+public class AppCliente : IObservador
+{
+    public void Atualizar(string status)
+    {
+        Console.WriteLine($"[App do Cliente] Status do pedido atualizado: {status}");
+    }
+}
+public class PainelCozinha : IObservador
+{
+    public void Atualizar(string status)
+    {
+        Console.WriteLine($"[Painel da Cozinha] Status do pedido atualizado: {status}");
+    }
+}
+public class Pedido
+{
+    private List<IObservador> abservadores = new List<IObservador>();
+    private string statusAtual;
+
+    public void Adicionar(IObservador obs) => abservadores.Add(obs);
+    public void MudarStatus(string novoStatus)
+    {
+        this.statusAtual = novoStatus;
+        foreach (var obs in abservadores)
+        {
+            obs.Atualizar(statusAtual);
+        }
+    }
+}
