@@ -173,3 +173,21 @@ public class CebolaCrispy : ItemPedidoDecorator
     public override double GetPreco() => base.itemAtual.GetPreco() + 2.0;
 
 }
+
+// 6. padrão strategy: calcular frete
+public interface ICalculoFrete
+{
+    double Calcular();
+}
+public class FreteNormal : ICalculoFrete
+{
+    public double Calcular() { Console.WriteLine("Frete: Normal"); return 5.00; }
+}
+public class FreteRapido : ICalculoFrete
+{
+    public double Calcular() { Console.WriteLine("Frete: Rápido"); return 10.00; }
+}
+public class RetirarBalcao : ICalculoFrete
+{
+    public double Calcular() { Console.WriteLine("Frete: Retirada (Grátis)"); return 0.00; }
+}
