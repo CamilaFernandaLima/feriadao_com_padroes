@@ -229,7 +229,7 @@ public class AppFacade
 {
     public void FazerPedido(string numeroLanche, bool querQueijo, bool querBacon, bool querCebola, ICalculoFrete frete)
     {
-        Console.WriteLine("NOVO PEDIDO:");
+        Console.WriteLine("\nNOVO PEDIDO:");
 
         // singleton verifica se a loja esta aberta
         var config = ConfiguracaoLoja.GetInstance();
@@ -279,3 +279,20 @@ public class AppFacade
     }
 }
 
+public class Program
+{
+    public static void Main()
+    {
+        AppFacade aplicativo = new AppFacade();
+
+        // pedido exemplo 1: "1" (X-Burguer), sem queijo extra, com bacon, com cebola crispy, escolha de frete rápido.
+        aplicativo.FazerPedido("1", false, true, true, new FreteRapido());
+
+        // pedido exemplo 2: "3" (Vegano), com queijo extra, sem bacon, sem cebola crispy, escolha de frete normal.
+        aplicativo.FazerPedido("3", true, false, false, new FreteNormal());
+
+        // testando o Proxy de Cancelamento (senha errada/ senha certa)
+        aplicativo.TentarCancelar("0000");
+        aplicativo.TentarCancelar("1234");
+    }
+}
